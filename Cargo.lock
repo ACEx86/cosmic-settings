@@ -1568,8 +1568,6 @@ dependencies = [
  "cosmic-protocols",
  "cosmic-randr",
  "cosmic-randr-shell",
- "cosmic-settings-a11y-manager-subscription",
- "cosmic-settings-accessibility-subscription",
  "cosmic-settings-airplane-mode-subscription",
  "cosmic-settings-bluetooth-subscription",
  "cosmic-settings-config",
@@ -1629,19 +1627,6 @@ dependencies = [
  "xkeysym",
  "zbus",
  "zbus_polkit",
-]
-
-[[package]]
-name = "cosmic-settings-a11y-manager-subscription"
-version = "1.0.7"
-dependencies = [
- "cosmic-protocols",
- "iced_futures",
- "num-derive",
- "num-traits",
- "smithay-client-toolkit",
- "tokio",
- "tracing",
 ]
 
 [[package]]

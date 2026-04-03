@@ -5,7 +5,6 @@ mod common;
 
 pub use common::{Model, ShortcutBinding, ShortcutMessage, ShortcutModel};
 
-pub mod accessibility;
 pub mod custom;
 pub mod manage_windows;
 pub mod move_window;
@@ -308,7 +307,6 @@ impl page::AutoBind<crate::pages::Message> for Page {
     fn sub_pages(
         mut page: cosmic_settings_page::Insert<crate::pages::Message>,
     ) -> cosmic_settings_page::Insert<crate::pages::Message> {
-        let accessibility = page.sub_page_with_id::<accessibility::Page>();
         let custom = page.sub_page_with_id::<custom::Page>();
         let manage_window = page.sub_page_with_id::<manage_windows::Page>();
         let move_window = page.sub_page_with_id::<move_window::Page>();
@@ -317,7 +315,6 @@ impl page::AutoBind<crate::pages::Message> for Page {
         let window_tiling = page.sub_page_with_id::<tiling::Page>();
 
         let model = page.model.page_mut::<Page>().unwrap();
-        model.sub_pages.accessibility = accessibility;
         model.sub_pages.custom = custom;
         model.sub_pages.manage_window = manage_window;
         model.sub_pages.move_window = move_window;

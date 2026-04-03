@@ -3,8 +3,6 @@
 
 use crate::PageCommands;
 use crate::config::Config;
-#[cfg(feature = "page-accessibility")]
-use crate::pages::accessibility;
 use crate::pages::applications;
 #[cfg(feature = "page-bluetooth")]
 use crate::pages::bluetooth;
@@ -76,12 +74,6 @@ pub struct SettingsApp {
 impl SettingsApp {
     fn subtask_to_page(&self, cmd: &PageCommands) -> Option<Entity> {
         match cmd {
-            #[cfg(feature = "page-accessibility")]
-            PageCommands::Accessibility => self.pages.page_id::<accessibility::Page>(),
-            #[cfg(feature = "page-accessibility")]
-            PageCommands::AccessibilityMagnifier => {
-                self.pages.page_id::<accessibility::magnifier::Page>()
-            }
             #[cfg(feature = "page-about")]
             PageCommands::About => self.pages.page_id::<system::about::Page>(),
             PageCommands::Appearance { command: _ } => {
@@ -219,8 +211,6 @@ impl cosmic::Application for SettingsApp {
         app.insert_page::<networking::Page>();
         #[cfg(feature = "page-bluetooth")]
         app.insert_page::<bluetooth::Page>();
-        #[cfg(feature = "page-accessibility")]
-        app.insert_page::<accessibility::Page>();
         let desktop_id = app.insert_page::<desktop::Page>().id();
         #[cfg(feature = "page-display")]
         app.insert_page::<display::Page>();
@@ -404,33 +394,13 @@ impl cosmic::Application for SettingsApp {
             Message::PageMessage(message) => match message {
                 crate::pages::Message::CloseContextDrawer => return self.close_context_drawer(),
 
-                #[cfg(feature = "page-accessibility")]
-                crate::pages::Message::Accessibility(message) => {
-                    if let Some(page) = self.pages.page_mut::<accessibility::Page>() {
-                        return page.update(message).map(Into::into);
-                    }
-                }
                 #[cfg(feature = "page-about")]
                 crate::pages::Message::About(message) => {
                     if let Some(page) = self.pages.page_mut::<system::about::Page>() {
                         return page.update(message).map(Into::into);
                     }
                 }
-                #[cfg(feature = "page-accessibility")]
-                crate::pages::Message::AccessibilityMagnifier(message) => {
-                    if let Some(page) = self.pages.page_mut::<accessibility::magnifier::Page>() {
-                        return page.update(self.active_page, message).map(Into::into);
-                    }
-                }
                 #[cfg(feature = "page-input")]
-                crate::pages::Message::AccessibilityShortcuts(message) => {
-                    if let Some(page) = self
-                        .pages
-                        .page_mut::<input::keyboard::shortcuts::accessibility::Page>()
-                    {
-                        return page.update(message).map(Into::into);
-                    }
-                }
                 crate::pages::Message::Appearance(message) => {
                     if let Some(page) = self.pages.page_mut::<appearance::Page>() {
                         return page.update(message).map(Into::into);
@@ -806,19 +776,6 @@ impl cosmic::Application for SettingsApp {
                     );
                 }
 
-                #[cfg(feature = "page-accessibility")]
-                if let Some(page) = self.pages.page_mut::<accessibility::magnifier::Page>() {
-                    tasks.push(
-                        page.update(
-                            self.active_page,
-                            crate::pages::accessibility::magnifier::Message::CompConfigUpdate(
-                                comp_config.clone(),
-                            ),
-                        )
-                        .map(Into::into),
-                    );
-                }
-
                 return Task::batch(tasks);
             }
 
@@ -930,16 +887,6 @@ impl cosmic::Application for SettingsApp {
         new_theme: &cosmic::cosmic_theme::Theme,
     ) -> Task<Self::Message> {
         let mut tasks = Vec::new();
-        #[cfg(feature = "page-accessibility")]
-        if let Some(page) = self.pages.page_mut::<accessibility::Page>() {
-            tasks.push(
-                page.update(accessibility::Message::SystemTheme(Box::new(
-                    new_theme.clone(),
-                )))
-                .map(Into::into),
-            );
-        }
-
         Task::batch(tasks)
     }
 }

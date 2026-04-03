@@ -209,28 +209,16 @@ pub(crate) fn style<
                     row::with_children(vec![
                         text::body(fl!("small")).into(),
                         slider(
-                            0..=4,
+                            15..=100,
                             match panel_config.size {
-                                PanelSize::XS => 0,
-                                PanelSize::S => 1,
-                                PanelSize::M => 2,
-                                PanelSize::L => 3,
-                                PanelSize::XL => 4,
-                                PanelSize::Custom(_) => 2,
+                                PanelSize::Custom(v) => v as i32,
+                                PanelSize::XS => 10,
+                                PanelSize::S => 25,
+                                PanelSize::M => 50,
+                                PanelSize::L => 75,
+                                PanelSize::XL => 100,
                             },
-                            |v| {
-                                if v == 0 {
-                                    Message::PanelSize(PanelSize::XS)
-                                } else if v == 1 {
-                                    Message::PanelSize(PanelSize::S)
-                                } else if v == 2 {
-                                    Message::PanelSize(PanelSize::M)
-                                } else if v == 3 {
-                                    Message::PanelSize(PanelSize::L)
-                                } else {
-                                    Message::PanelSize(PanelSize::XL)
-                                }
-                            },
+                            |v| Message::PanelSize(PanelSize::Custom(v as _)),
                         )
                         .width(Length::Fill)
                         .apply(cosmic::widget::container)

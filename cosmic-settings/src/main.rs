@@ -54,12 +54,6 @@ pub enum AppearanceCommands {
 
 #[derive(Subcommand, Debug, Serialize, Deserialize, Clone)]
 pub enum PageCommands {
-    /// Accessibility settings page
-    #[cfg(feature = "page-accessibility")]
-    Accessibility,
-    /// Accessibility Magnifier settings page
-    #[cfg(feature = "page-accessibility")]
-    AccessibilityMagnifier,
     /// About settings page
     #[cfg(feature = "page-about")]
     About,

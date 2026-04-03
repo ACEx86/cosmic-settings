@@ -8,6 +8,8 @@ use std::{
     hash::{Hash, Hasher},
     time::Duration,
 };
+use std::mem::forget;
+use tracing::log::__private_api::loc;
 use zbus::zvariant::OwnedObjectPath;
 
 const DEFAILT_DEVICE_ICON: &str = "bluetooth-symbolic";
@@ -228,34 +230,59 @@ pub async fn disconnect_device(
 }
 
 pub async fn connect_device(connection: zbus::Connection, device_path: OwnedObjectPath) -> Event {
+    tokio::time::sleep(Duration::from_millis(1000)).await;
     let proxy = match bluez_zbus::get_device(&connection, device_path.clone()).await {
         Err(why) => {
-            tracing::error!("Unable to get the device: {why}");
+            tracing::error!("Device proxy failed: {why}");
             return Event::DeviceFailed(device_path);
         }
-        Ok(proxy) => proxy,
+        Ok(p) => p,
     };
 
-    for attempt in 1..5 {
-        let result = async {
-            if proxy.device.connected().await? {
-                Ok(())
-            } else if !proxy.device.paired().await.unwrap_or(false) {
-                proxy.device.pair().await?;
+    for attempt in 1..=5 {
+        let mut is_paired = false;
+        let mut is_connected = false;
+        is_paired = proxy.device.paired().await.unwrap_or(false);
+        is_connected = proxy.device.connected().await.unwrap_or(false);
+        println!("Attempt {attempt}: PAIRED: {is_paired}");
+        println!("Attempt {attempt}: CONNECTED: {is_connected}");
+        if !is_paired {
+            println!("Attempt {attempt}: PAIRING");
+            _ = async {
+                proxy.device.pair().await
+            }.await;
+            is_paired = proxy.device.paired().await.unwrap_or(false);
+            println!("Attempt {attempt}: PAIRED STATS: {is_paired}");
+        }
+
+        if is_paired && !is_connected {
+            let result = async {
+                println!("Attempt {attempt}: CONNECTING");
                 proxy.device.connect().await
-            } else {
-                proxy.device.connect().await
+            }.await;
+            if let Err(why) = result {
+                println!("Unable to connect to device: {why}");
+                tracing::warn!("Unable to connect to device: {why}");
+            }
+            is_connected = proxy.device.connected().await.unwrap_or(false);
+            println!("Attempt {attempt}: CONNECTING STATS: {is_connected}");
+        }
+
+        if proxy.device.paired().await.unwrap_or(false) {
+            if proxy.device.connected().await.unwrap_or(false) {
+                tokio::time::sleep(Duration::from_millis(1000)).await;
+                if proxy.device.services_resolved().await.unwrap_or(false) {
+                    println!("Successfully bonded and connected! {attempt}");
+                    return Event::Ok;
+                } else {
+                    println!("Tic Tac Tow");
+                }
             }
         }
-        .await;
 
-        if let Err(why) = result {
-            tracing::warn!("Unable to connect to device: {why}");
-            tokio::time::sleep(Duration::from_millis(1000 * attempt)).await;
-        } else {
-            return Event::Ok;
-        }
+        tokio::time::sleep(Duration::from_millis(500)).await;
     }
+
     Event::DeviceFailed(device_path)
 }
 

@@ -30,8 +30,6 @@ cosmic-randr-shell.workspace = true
 cosmic-randr = { workspace = true, optional = true }
 cosmic-settings-config = { git = "https://github.com/pop-os/cosmic-settings-daemon", optional = true }
 cosmic-settings-page = { path = "../page" }
-cosmic-settings-accessibility-subscription = { path = "../subscriptions/accessibility", optional = true }
-cosmic-settings-a11y-manager-subscription = { path = "../subscriptions/a11y-manager", optional = true }
 cosmic-settings-airplane-mode-subscription = { path = "../subscriptions/airplane-mode", optional = true }
 cosmic-settings-bluetooth-subscription = { path = "../subscriptions/bluetooth", optional = true }
 cosmic-settings-network-manager-subscription = { path = "../subscriptions/network-manager", optional = true }
@@ -112,13 +110,12 @@ git = "https://github.com/AerynOS/locales-rs"
 optional = true
 
 [features]
-default = ["a11y", "linux", "single-instance", "wgpu"]
+default = ["linux", "single-instance", "wgpu"]
 gettext = ["dep:gettext-rs"]
 
 # Default features for Linux
 linux = [
     "cosmic-comp-config",
-    "page-accessibility",
     "page-about",
     "page-bluetooth",
     "page-date",
@@ -138,15 +135,6 @@ linux = [
 ]
 
 # Pages
-page-accessibility = [
-    "cosmic-comp-config",
-    "dep:sctk",
-    "dep:cosmic-protocols",
-    "dep:cosmic-settings-config",
-    "dep:cosmic-settings-daemon-config",
-    "dep:cosmic-settings-accessibility-subscription",
-    "dep:cosmic-settings-a11y-manager-subscription",
-]
 page-about = ["dep:hostname1-zbus", "dep:sysinfo", "dep:zbus"]
 page-bluetooth = [
     "dep:cosmic-settings-bluetooth-subscription",
@@ -186,7 +174,6 @@ page-window-management = ["cosmic-comp-config", "dep:cosmic-settings-config"]
 page-workspaces = ["cosmic-comp-config"]
 
 # Other features
-a11y = ["libcosmic/a11y"]
 ashpd = ["dep:ashpd"]
 cosmic-comp-config = ["dep:cosmic-comp-config"]
 dbus-config = ["libcosmic/dbus-config", "cosmic-config/dbus"]

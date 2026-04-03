@@ -18,12 +18,6 @@ fn main() {
             "xdg-entry-about-keywords",
         ),
         (
-            "com.system76.CosmicSettings.Accessibility",
-            "xdg-entry-ally",
-            "xdg-entry-a11y-comment",
-            "xdg-entry-a11y-keywords",
-        ),
-        (
             "com.system76.CosmicSettings.Appearance",
             "appearance",
             "xdg-entry-appearance-comment",
